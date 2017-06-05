@@ -1,0 +1,33 @@
+{
+  "name": "kate",
+  "description": "a talk room",
+  "version": "0.0.1",
+  "main": "src/app.js",
+  "scripts": {
+    "run": "nodemon src/app.js --exec babel-node",
+    "start": "node src/app.js",
+    "debug": "babel-node %NODE_DEBUG_OPTION% src/app.js",
+    "build": "babel src -d dist"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.0",
+    "babel-core": "^6.24.0",
+    "babel-plugin-transform-async-to-generator": "^6.24.1"
+  },
+  "dependencies": {
+    "cookies": "^0.7.0",
+    "koa": "^2.2.0",
+    "koa-convert": "^1.2.0",
+    "koa-logger": "^3.0.0",
+    "koa-nunjucks-next": "^1.1.2",
+    "koa-router": "^7.1.1",
+    "koa-session": "^5.0.0",
+    "koa-static": "^3.0.0",
+    "log4js": "^1.1.1",
+    "mongoose": "^4.9.10",
+    "path": "^0.12.7",
+    "ws": "^3.0.0"
+  },
+  "repository": {},
+  "license": "MIT"
+}

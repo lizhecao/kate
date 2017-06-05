@@ -1,0 +1,14 @@
+{
+  "appenders": [
+    {
+      "type": "dateFile",
+      "filename": "/opt/kate/logs/kate.log",
+      "maxLogSize": 20480,
+      "pattern": ".yyyyMMdd",
+      "category": "kate"
+    }
+  ],
+  "levels":{
+    "kate": "DEBUG"
+  }
+}

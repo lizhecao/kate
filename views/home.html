@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>let's talk</title>
+  <script src="js/jquery-3.2.1.min.js"></script>
+  <script src="js/vue.min.js"></script>
+  <script src="js/desktopnotifycation.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="css/bootstrap.css">
+  <style>
+    body
+    {
+      background:url(imgs/girl.jpg);
+      background-size:cover;
+      background-repeat:no-repeat;
+      /*padding-top:30px;*/
+      font-family:"Microsoft YaHei";
+      /*text-align:center;*/
+    }
+    .col-center-block {
+      float: none;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="row">
+    <div class="col-md-6 col-xs-12 col-center-block">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title" style="text-align: center"><span class="glyphicon glyphicon-th-list"></span>Nice Talk</h3>
+        </div>
+        <div class="panel-body" style="margin-top: 25px">
+          <div>
+            <form id="form-chat" action="#0">
+              <div class="input-group">
+                <input type="text" class="form-control" placeholder="let's talk">
+                <span class="input-group-btn"><img id="emoji" class="center-block" style="width:40px; height:40px; margin: 2px" src="imgs/laugh.png" alt="emoji"></span>
+                <span class="input-group-btn"><button class="btn btn-default" type="submit">Go</button></span>
+              </div>
+            </form>
+          </div>
+          <div id="emojiWrapper">
+          <div style="height:500px; overflow-x:hidden; overflow-y:scroll;">
+            <div id="message-list">
+              <div style="margin-bottom:25px; margin-top: 10px;" v-for="msg in messages">
+                <div v-if="msg.time !== ''">
+                  <div class="media-body">
+                    <h4 class="media-heading" style="text-align: center" v-text="msg.time"></h4>
+                  </div>
+                </div>
+                <div v-if="msg.type === 'in' || msg.type === 'out'">
+                  <div class="media-left">
+                    <img class="media-object" style="width:20px; height:20px;" v-bind:src="'/imgs/' + msg.name + '.png'">
+                  </div>
+                  <div class="media-body">
+                    <h4 class="media-heading" v-text="msg.word"></h4>
+                  </div>
+                </div>
+                <div v-if="msg.type === 'talk'">
+                  <div class="media">
+                    <div class="media-left">
+                      <img class="media-object" style="width:48px; height:48px;" v-bind:src="'/imgs/' + msg.name + '.png'">
+                    </div>
+                    <div class="media-body" style="word-wrap:break-word;word-break:break-all;">
+                      <h4 class="media-heading" v-text="msg.name"></h4>
+                      <span v-text="msg.word"></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--<div class="col-md-4">-->
+      <!--<div class="panel panel-default">-->
+        <!--<div class="panel-heading">-->
+          <!--<h3 class="panel-title"><span class="glyphicon glyphicon-user"></span> Users</h3>-->
+        <!--</div>-->
+        <!--<div class="panel-body">-->
+          <!--<div style="height:434px; overflow-x:hidden; overflow-y:scroll;">-->
+            <!--<div id="user-list">-->
+              <!--<div class="media" v-for="user in users">-->
+                <!--<div class="media-left">-->
+                  <!--<img class="media-object" style="width:20px; height:20px;" v-bind:src="'/imgs/' + user.image + '.png'">-->
+                <!--</div>-->
+                <!--<div class="media-body">-->
+                  <!--<h4 class="media-heading" v-text="user.name + ' (' + user.id + ')'"></h4>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</div>-->
+  </div>
+</div>
+
+<script>
+  var isNew = false;
+  setInterval(function () {
+    isNew = true;
+  }, 3 * 60 * 1000);
+
+  function addMessage(list, msg) {
+    list.unshift(msg);
+  }
+
+  $(function () {
+    var messageList = new Vue({
+      el: '#message-list',
+      data: {
+        messages: [
+//          {
+//            name: 'ryan',
+//            word: 'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh',
+//          },
+//          {
+//            name: 'kaixuan',
+//            word: 'hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh',
+//          },
+        ]
+      }
+    });
+
+    var ws = new WebSocket('ws://localhost:3000/');
+
+    ws.onmessage = function(event) {
+      var data = event.data;
+      console.log(data);
+      var msg = JSON.parse(data);
+
+      msg.time = '';
+      if (isNew) {
+        let date = new Date();
+        let d = date.getMinutes();
+        d = d < 10 ? '0' + d : '' + d;
+        msg.time = `${date.getHours()}:${d}`;
+        isNew = false;
+      }
+
+      addMessage(messageList.messages, msg);
+
+      var options = {
+        url : "imgs/flower.png",
+        title : msg.name,
+        body : msg.word,
+      };
+      if (document.visibilityState !== 'visible') {
+        createNotification(options);
+      }
+    };
+
+    $('#form-chat').submit(function (e) {
+      e.preventDefault();
+      var input = $(this).find('input[type=text]');
+      var text = input.val().trim();
+      console.log('[chat] ' + text);
+      if (text) {
+        input.val('');
+        ws.send(text);
+      }
+    });
+  });
+</script>
+</body>
+</html>
